@@ -1,0 +1,6 @@
+interface:
+  display_name: "Project Feedback Loop"
+  short_description: "Turn project friction into GitHub issues"
+  default_prompt: "Use $project-feedback-loop when I am using or developing a local project and you notice project friction."
+policy:
+  allow_implicit_invocation: true
