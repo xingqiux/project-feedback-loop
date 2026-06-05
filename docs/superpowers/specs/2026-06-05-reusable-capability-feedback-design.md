@@ -10,9 +10,27 @@ The current skill already handles user-designated feedback targets, user/develop
 
 The gap is conceptual: the skill does not yet give agents a broad enough model for noticing when a one-time pain point suggests the project should grow a reusable capability. A narrow list such as "new CLI command, new script, new skill workflow" is not sufficient because it turns examples into categories and misses other valid forms.
 
+There is also an ownership gap: feedback targets must be selected by the user, not inferred from whichever project the agent happens to be editing or using. A user may designate multiple feedback targets in the same session, such as `/Users/youla/proj/wx-digest` and `/Users/youla/proj/skills/project-feedback-loop`.
+
 ## Design
 
 Add a User Mode section named `Reusable Capability Feedback`.
+
+## Feedback Target Selection
+
+Replace AI-driven project auto-identification with user-specified feedback targets.
+
+Rules:
+
+- The agent may not decide on its own that a project should receive feedback.
+- The user can designate one feedback target or several feedback targets in a session.
+- Feedback targets are explicit project roots, such as `/Users/youla/proj/wx-digest` or `/Users/youla/proj/skills/project-feedback-loop`.
+- When multiple targets are active, each feedback item must be routed to the project it concerns.
+- If friction touches several active targets, the issue draft should either choose the primary affected project or produce separate drafts, one per project, with clear cross-reference notes.
+- If the affected project is not an active feedback target, the agent should not draft or submit feedback for it. It may ask whether the user wants to add that project as a feedback target.
+- Developer mode can still inspect and maintain a project when the user names it as the development target, but user-mode feedback remains limited to designated feedback targets.
+
+The skill should use language like "active feedback targets" rather than "current project" when describing user-mode feedback.
 
 The section should start with an abstract rule:
 
@@ -72,6 +90,9 @@ High-ROI, normal-scope changes may proceed through implementation, verification,
 ## Acceptance Criteria
 
 - The skill no longer frames reusable feedback as a short list of artifact types.
+- Feedback targets are selected manually by the user, not automatically inferred by the agent.
+- The skill supports multiple active feedback targets in one session.
+- Feedback is routed to the correct active target, with separate drafts when needed.
 - User Mode contains an abstract reusable-capability reasoning model.
 - The exploration surface is broad and explicitly non-exhaustive.
 - Issue drafts can capture a reusable capability angle without prescribing implementation.
