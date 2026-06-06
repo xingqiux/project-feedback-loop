@@ -2,7 +2,7 @@
 
 ## Goal
 
-Teach `project-feedback-loop` to help agents recognize reusable capability gaps from real, user-authorized project use. The skill should guide agents to abstract from friction without reducing the user's examples into a fixed checklist.
+Teach `project-feedback-loop` to help agents recognize reusable capability gaps from real, user-authorized project use and turn them into quiet self-evolution issues. The skill should guide agents to abstract from friction without reducing the user's examples into a fixed checklist or repeatedly asking the user to review drafts.
 
 ## Context
 
@@ -10,7 +10,7 @@ The current skill already handles user-designated feedback targets, user/develop
 
 The gap is conceptual: the skill does not yet give agents a broad enough model for noticing when a one-time pain point suggests the project should grow a reusable capability. A narrow list such as "new CLI command, new script, new skill workflow" is not sufficient because it turns examples into categories and misses other valid forms.
 
-There is also an ownership gap: feedback targets must be selected by the user, not inferred from whichever project the agent happens to be editing or using. A user may designate multiple feedback targets in the same session, such as `/Users/youla/proj/wx-digest` and `/Users/youla/proj/skills/project-feedback-loop`.
+There is also an ownership and interaction gap: feedback targets must be selected by the user, not inferred from whichever project the agent happens to be editing or using, and developer designation is not feedback designation. Once user-mode feedback targets are active, the agent should not interrupt the user with feedback drafts or repeated confirmation prompts. A user may designate multiple feedback targets in the same session, such as `/Users/youla/proj/wx-digest` and `/Users/youla/proj/skills/project-feedback-loop`.
 
 ## Design
 
@@ -26,11 +26,35 @@ Rules:
 - The user can designate one feedback target or several feedback targets in a session.
 - Feedback targets are explicit project roots, such as `/Users/youla/proj/wx-digest` or `/Users/youla/proj/skills/project-feedback-loop`.
 - When multiple targets are active, each feedback item must be routed to the project it concerns.
-- If friction touches several active targets, the issue draft should either choose the primary affected project or produce separate drafts, one per project, with clear cross-reference notes.
-- If the affected project is not an active feedback target, the agent should not draft or submit feedback for it. It may ask whether the user wants to add that project as a feedback target.
+- If friction touches several active targets, the agent should either choose the primary affected project or submit separate issues, one per project, with clear cross-reference notes.
+- If the affected project is not an active feedback target, the agent should not submit feedback for it. It may ask whether the user wants to add that project as a feedback target.
 - Developer mode can still inspect and maintain a project when the user names it as the development target, but user-mode feedback remains limited to designated feedback targets.
+- A project named as a developer or maintenance target is not automatically an active feedback target.
 
 The skill should use language like "active feedback targets" rather than "current project" when describing user-mode feedback.
+
+## Quiet Self-Evolution
+
+User mode should be quiet by default:
+
+- Do not present issue drafts for user approval.
+- Do not ask for confirmation before every issue.
+- Do not announce every feedback point while the user is trying to complete the main task.
+- When an active feedback target has a clear repository and issue destination, submit the issue automatically.
+- Mention submitted issue URLs only briefly in a natural final summary or when the user asks.
+- Ask the user only when required to unblock target selection, repository access, authentication, sensitive disclosure, or cross-project routing.
+- If submission is blocked by missing GitHub remote or authentication, do not pretend to submit and do not spam a draft into the conversation.
+
+Quiet automatic submission applies only to User Mode. Developer Mode may inspect and implement issues, but should not create new issues for incidental friction discovered during maintenance unless the user explicitly asks for issue creation or designates the project as an active feedback target.
+
+## Issue Language
+
+GitHub issues should follow the user's language context:
+
+- Default to the current conversation language.
+- For Chinese conversations, Chinese projects, or Chinese feedback, submit issue titles, headings, and bodies in Chinese.
+- If the user explicitly specifies an issue language, follow that language.
+- Keep the issue structure stable, but translate section headings and field content to the target language.
 
 The section should start with an abstract rule:
 
@@ -70,7 +94,7 @@ Add an optional issue section:
 Does this feedback imply the project should grow a reusable capability? If so, describe the capability goal, who benefits, and the cost it reduces. Do not force a specific implementation form unless it is clearly implied.
 ```
 
-This section should be omitted when the issue is a simple bug with no capability-design implication.
+This section should be omitted when the issue is a simple bug with no capability-design implication. It is part of the submitted issue body, not a user-facing draft.
 
 ## Developer Mode Behavior
 
@@ -87,14 +111,20 @@ When an issue proposes or implies reusable capability, the developer agent shoul
 
 High-ROI, normal-scope changes may proceed through implementation, verification, and `git-commit`. Narrow, ambiguous, architectural, or direction-shifting changes require discussion with the user first.
 
+Developer mode should not automatically create new issues for newly discovered friction in the project being maintained. The agent should report the trade-off, fix normal-scope/high-ROI friction directly, or create a new issue only when the user asks to record feedback, asks to create an issue, designates the project as an active feedback target, or asks the agent to act as a feedback user.
+
 ## Acceptance Criteria
 
 - The skill no longer frames reusable feedback as a short list of artifact types.
 - Feedback targets are selected manually by the user, not automatically inferred by the agent.
 - The skill supports multiple active feedback targets in one session.
-- Feedback is routed to the correct active target, with separate drafts when needed.
+- Developer designation is separate from feedback designation.
+- Feedback is routed to the correct active target, with separate submitted issues when needed.
 - User Mode contains an abstract reusable-capability reasoning model.
 - The exploration surface is broad and explicitly non-exhaustive.
-- Issue drafts can capture a reusable capability angle without prescribing implementation.
+- Submitted issues can capture a reusable capability angle without prescribing implementation.
+- User Mode is quiet by default: no routine issue drafts, no per-issue confirmation prompts, and no feedback chatter during the main task.
 - Developer Mode treats reusable capability suggestions as hypotheses to evaluate.
+- Developer Mode does not auto-create new issues for incidental maintenance friction.
+- Submitted issues follow the current conversation language by default, including Chinese issue titles and bodies for Chinese conversations.
 - Existing gates remain intact: no feedback without user-designated project, no pretending to submit without GitHub access, and no commits without `git-commit`.
