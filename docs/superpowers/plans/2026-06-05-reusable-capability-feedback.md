@@ -108,3 +108,25 @@ Issue titles, headings, and bodies now default to the current conversation langu
 - [x] **Step 4: Add pressure scenarios**
 
 The skill now includes checks for Developer Mode not auto-filing incidental friction and for Chinese feedback producing Chinese issue titles and bodies.
+
+### Task 6: Developer Mode Push And Issue Closure
+
+**Files:**
+- Modify: `/Users/youla/proj/skills/project-feedback-loop/SKILL.md`
+- Modify: `/Users/youla/proj/skills/project-feedback-loop/docs/superpowers/specs/2026-06-05-reusable-capability-feedback-design.md`
+
+- [x] **Step 1: Extend the developer finish definition**
+
+Developer Mode now treats implementation, verification, `git-commit`, authorized push, and issue closure as the complete finish for normal-scope completed issue work.
+
+- [x] **Step 2: Add push authorization rules**
+
+The skill now pushes the current branch after commit when the user explicitly requested automatic push or the project/session maintenance preference says to push after commit. If automatic push is not authorized, it asks whether to push after committing.
+
+- [x] **Step 3: Add issue closure rules**
+
+After implementation, verification, commit, and push all succeed, the skill closes the related issue by default with a comment covering solved feedback, branch, commit hash, verification commands, and remaining risk. It does not close the issue when push fails, review is required, the user asked to keep it open, or the fix is partial.
+
+- [x] **Step 4: Add pressure scenarios**
+
+The skill now checks that an agent asked to auto-push after commit continues through push and issue closure instead of stopping after the commit.

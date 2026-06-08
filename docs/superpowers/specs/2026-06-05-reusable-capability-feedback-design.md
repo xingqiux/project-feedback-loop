@@ -109,9 +109,18 @@ When an issue proposes or implies reusable capability, the developer agent shoul
 - whether the change has high enough ROI to implement autonomously
 - whether the change would overfit a narrow scenario or shift the project direction
 
-High-ROI, normal-scope changes may proceed through implementation, verification, and `git-commit`. Narrow, ambiguous, architectural, or direction-shifting changes require discussion with the user first.
+High-ROI, normal-scope changes may proceed through implementation, verification, `git-commit`, authorized push, and issue closure. Narrow, ambiguous, architectural, or direction-shifting changes require discussion with the user first.
 
 Developer mode should not automatically create new issues for newly discovered friction in the project being maintained. The agent should report the trade-off, fix normal-scope/high-ROI friction directly, or create a new issue only when the user asks to record feedback, asks to create an issue, designates the project as an active feedback target, or asks the agent to act as a feedback user.
+
+Developer mode should also define a complete issue-maintenance finish:
+
+- Commit using `git-commit`.
+- Push the current branch after commit when the user explicitly requested automatic push or the project/session maintenance preference says to push after commit.
+- If automatic push is not authorized, ask whether to push after committing.
+- Close the related issue by default after implementation, verification, commit, and push all succeed.
+- Include the solved feedback, branch, commit hash, verification commands, and remaining risk in the closing comment.
+- Do not close the issue if push fails, review is required, the user asked to keep it open, or the fix is partial.
 
 ## Acceptance Criteria
 
@@ -126,5 +135,6 @@ Developer mode should not automatically create new issues for newly discovered f
 - User Mode is quiet by default: no routine issue drafts, no per-issue confirmation prompts, and no feedback chatter during the main task.
 - Developer Mode treats reusable capability suggestions as hypotheses to evaluate.
 - Developer Mode does not auto-create new issues for incidental maintenance friction.
+- Developer Mode supports commit, authorized push, and issue closure as the default finish for completed issue work.
 - Submitted issues follow the current conversation language by default, including Chinese issue titles and bodies for Chinese conversations.
 - Existing gates remain intact: no feedback without user-designated project, no pretending to submit without GitHub access, and no commits without `git-commit`.

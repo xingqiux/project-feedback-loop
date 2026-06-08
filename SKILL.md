@@ -162,7 +162,7 @@ Before development work:
 3. Explore the feedback in detail: reproduce if possible, inspect affected code/docs/CLI/skills, and understand who benefits.
 4. Evaluate whether the request is too narrow, over-specialized, or likely to bias the project toward a small scenario.
 5. Report relevant issues, trade-offs, and the recommended next step.
-6. For normal, high-ROI improvements, the agent may proceed autonomously through implementation, verification, and commit.
+6. For normal, high-ROI improvements, the agent may proceed autonomously through implementation, verification, commit, authorized push, and issue closure.
 
 Developer evaluation questions:
 
@@ -185,8 +185,18 @@ For high-ROI, normal-scope improvements:
 2. Implement the focused change.
 3. Verify with the project's tests or the original workflow.
 4. Commit the change.
+5. Push the current branch when the user explicitly requested automatic push or the project/session maintenance preference already says to push after commit.
+6. After a successful push, close the completed issue by default with a concise comment covering what changed, branch, commit, verification commands, and remaining risk.
 
 Commit rule: before staging or committing, invoke and follow the `git-commit` skill. Do not hand-roll the commit process.
+
+Push and issue closure rule:
+
+- If automatic push is authorized by the user or project/session maintenance preference, push the current implementation branch after a successful commit.
+- If automatic push is not authorized, ask whether to push after committing; do not leave the user guessing why the remote issue cannot see the change.
+- After implementation, verification, commit, and push all succeed, close the related issue by default unless the user asked to keep it open, review is required, or the fix is partial.
+- The closing comment should mention the solved feedback, branch, commit hash, verification commands, and any remaining risk.
+- If push fails, do not close the issue; report the blocker and keep the local commit intact.
 
 Issue creation in developer mode:
 
@@ -331,7 +341,8 @@ A future agent using this skill should pass these checks:
 - If the user says "you are the developer of `/Users/youla/proj/wx-digest`", it checks open issues before proposing implementation work.
 - If the user says "you are the developer of the skills project", it treats `/Users/youla/proj/skills` as the project root, checks feedback, evaluates breadth and ROI, then reports before editing skills.
 - If a developer-mode issue would require a broad refactor for a tiny special case, it discusses the trade-off with the user instead of implementing directly.
-- If a developer-mode issue is normal-scope and high-ROI, it may implement, verify, and then invoke `git-commit` before committing.
+- If a developer-mode issue is normal-scope and high-ROI, it may implement, verify, invoke `git-commit`, commit, push when authorized, and close the issue after a successful push.
+- If the user asks the developer to handle issues and says to automatically push after commit, it does not stop after commit; it pushes the branch and completes issue closure when the fix is complete.
 - If the project has no GitHub remote or `gh` is not authenticated, it does not pretend to submit and does not spam a draft into the conversation.
 - If the friction was caused by the agent skipping known instructions, it fixes its own process instead of blaming the project.
 
@@ -347,4 +358,6 @@ A future agent using this skill should pass these checks:
 - Do not perform code changes just because an issue was discovered in user mode.
 - Do not implement narrow or architectural feedback without discussing trade-offs with the user.
 - Do not commit without invoking and following `git-commit`.
+- Do not stop after commit when automatic push is authorized and issue closure depends on a remote-visible commit.
+- Do not close a developer-mode issue before verification, commit, and required push have succeeded.
 - Do not skip issue review in developer mode.
